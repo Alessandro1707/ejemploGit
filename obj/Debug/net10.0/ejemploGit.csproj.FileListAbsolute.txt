@@ -1,0 +1,14 @@
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\ejemploGit.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\ejemploGit.AssemblyInfoInputs.cache
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\ejemploGit.AssemblyInfo.cs
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\ejemploGit.csproj.CoreCompileInputs.cache
+C:\Users\USUARIO\desktop\ejemploGit\bin\Debug\net10.0\ejemploGit.exe
+C:\Users\USUARIO\desktop\ejemploGit\bin\Debug\net10.0\ejemploGit.deps.json
+C:\Users\USUARIO\desktop\ejemploGit\bin\Debug\net10.0\ejemploGit.runtimeconfig.json
+C:\Users\USUARIO\desktop\ejemploGit\bin\Debug\net10.0\ejemploGit.dll
+C:\Users\USUARIO\desktop\ejemploGit\bin\Debug\net10.0\ejemploGit.pdb
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\ejemploGit.dll
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\refint\ejemploGit.dll
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\ejemploGit.pdb
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\ejemploGit.genruntimeconfig.cache
+C:\Users\USUARIO\desktop\ejemploGit\obj\Debug\net10.0\ref\ejemploGit.dll
