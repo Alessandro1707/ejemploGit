@@ -197,6 +197,26 @@ public class IndexModel : PageModel
         AccesoConcedido = false;
     }
 
+    // 🚀 FUNCIÓN AGREGADA: Elimina al alumno usando comandos directos de SQLite
+    public IActionResult OnPostEliminarAlumno(string dni)
+    {
+        using (var connection = new SqliteConnection(ConnectionString))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM Alumnos WHERE Dni = $dni";
+            command.Parameters.AddWithValue("$dni", dni);
+            command.ExecuteNonQuery();
+        }
+
+        TipoAlerta = "success";
+        MensajeAlerta = "El alumno ha sido eliminado correctamente del sistema.";
+        
+        // Recargamos los datos del panel de administrador
+        CargarDatosAdmin();
+        return Page();
+    }
+
     private void InicializarBaseDeDatos()
     {
         using (var connection = new SqliteConnection(ConnectionString))
