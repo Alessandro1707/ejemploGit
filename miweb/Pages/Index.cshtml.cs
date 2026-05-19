@@ -228,7 +228,7 @@ namespace miweb.Pages
                 await _context.SaveChangesAsync();
                 
                 string msgWa = $"Hola, deseo unirme a la Academia PJ. Mis datos:\n⚽ Nombre: {NuevoNombre}\n🪪 DNI: {NuevoDni}\n📱 Celular: {NuevoCelular}";
-                WhatsappUrl = $"https://wa.me/51924082729?text={Uri.EscapeDataString(msgWa)}";
+                WhatsappUrl = $"https://wa.me/51904177349?text={Uri.EscapeDataString(msgWa)}";
                 
                 MensajeAlerta = "¡Felicidades! Tus datos provisionales han sido guardados. Procede a enviar el WhatsApp.";
                 TipoAlerta = "success";
