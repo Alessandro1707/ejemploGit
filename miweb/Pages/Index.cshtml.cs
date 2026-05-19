@@ -143,7 +143,7 @@ public class IndexModel : PageModel
             command.ExecuteNonQuery();
         }
 
-        string numeroAcademia = "51900000000"; 
+        string numeroAcademia = "51904177349"; 
         string mensajeTexto = $"⚽ *NUEVA INSCRIPCIÓN - ACADEMIA PJ* ⚽\n\n" +
                               $"¡Hola! Me acabo de registrar desde la web para unirme a la academia:\n\n" +
                               $"👤 *Nombre:* {NuevoNombre}\n" +
