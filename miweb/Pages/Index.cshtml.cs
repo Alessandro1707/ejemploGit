@@ -42,16 +42,20 @@ namespace miweb.Pages
 
     public class AcademiaDbContext : DbContext
     {
-        public AcademiaDbContext(DbContextOptions<AcademiaDbContext> options) : base(options) { }
+        public AcademiaDbContext(DbContextOptions<AcademiaDbContext> options) : base(options) 
+        {
+            Database.EnsureCreated();
+        }
         public DbSet<Alumno> Alumnos { get; set; } = null!;
         public DbSet<NuevoInscrito> NuevosInscritos { get; set; } = null!;
     }
 
     public class IndexModel : PageModel
     {
-        private readonly AcademiaDbContext _context;
+        // 🟢 Cambiado a la ruta completa para eliminar la línea roja de VS Code
+        private readonly miweb.Pages.AcademiaDbContext _context;
 
-        public IndexModel(AcademiaDbContext context)
+        public IndexModel(miweb.Pages.AcademiaDbContext context)
         {
             _context = context;
         }
