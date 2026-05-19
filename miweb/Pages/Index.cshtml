@@ -136,7 +136,7 @@
                             </div>
                             <div class="col-sm-4 mb-1">
                                 <label class="form-label fw-bold mb-0 small">Celular:</label>
-                                <input type="text" asp-for="AdminManualCellular" class="form-control form-control-sm" required />
+                                <input type="text" asp-for="AdminManualCelular" class="form-control form-control-sm" required />
                             </div>
                             <div class="col-6 col-sm-4 mb-1">
                                 <label class="form-label fw-bold mb-0 small">Edad:</label>
@@ -215,7 +215,7 @@
                                 </td>
                                 <td class="text-center">
                                     <form method="post" asp-page-handler="EliminarAlumno" asp-route-dni="@item.Dni" 
-                                          onsubmit="return confirm('¿Estás seguro de que deseas eliminar permanentemente a @item.Nombre de la base de datos?');" 
+                                          onsubmit="return confirm('¿Estás seguro de que deseas eliminar permanentemente a @item.Nombre?');" 
                                           style="display:inline;">
                                         <button type="submit" class="btn btn-danger btn-sm py-0 px-2" style="font-size: 0.75rem;">
                                             Eliminar
