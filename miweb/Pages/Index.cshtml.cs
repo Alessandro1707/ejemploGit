@@ -336,4 +336,4 @@ namespace miweb.Pages
             return RedirectToPage();
         }
     }
-}
+}// Modificación forzada para limpiar Render
