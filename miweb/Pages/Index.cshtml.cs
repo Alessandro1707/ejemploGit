@@ -1,318 +1,335 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
-namespace miweb.Pages;
-
-public class IndexModel : PageModel
+namespace miweb.Pages
 {
-    private static readonly string DbPath = "academia.db";
-    private static readonly string ConnectionString = $"Data Source={DbPath}";
-
-    public List<(string Nombre, string Dni, string Celular, int Edad, string EstadoPago, string Asistencias)> ListaAlumnos { get; set; } = new();
-    public List<(string Nombre, string Dni, string Celular, int Edad, string Fecha)> ListaNuevosInscritos { get; set; } = new();
-
-    [BindProperty]
-    public string DniConsulta { get; set; } = "";
-
-    [BindProperty]
-    public string NuevoNombre { get; set; } = "";
-    [BindProperty]
-    public string NuevoDni { get; set; } = "";
-    [BindProperty]
-    public int NuevoEdad { get; set; }
-    [BindProperty]
-    public string NuevoCelular { get; set; } = "";
-
-    [BindProperty]
-    public string AdminManualNombre { get; set; } = "";
-    [BindProperty]
-    public string AdminManualDni { get; set; } = "";
-    [BindProperty]
-    public string AdminManualCelular { get; set; } = "";
-    [BindProperty]
-    public int AdminManualEdad { get; set; }
-    [BindProperty]
-    public string AdminManualEstadoPago { get; set; } = "Al día";
-
-    public int MontoInscripcion => 109;
-    public bool AccesoConcedido { get; set; } = false;
-    public static bool EsAdminSesion { get; set; } = false; 
-    public string MensajeAlerta { get; set; } = "";
-    public string TipoAlerta { get; set; } = "success";
-    
-    public string AlumnoNombre { get; set; } = "";
-    public string AlumnoDni { get; set; } = "";
-    public string AlumnoCelular { get; set; } = "";
-    public int AlumnoEdad { get; set; }
-    public string AlumnoEstadoPago { get; set; } = "";
-    public string AlumnoAsistencias { get; set; } = "";
-    public string WhatsappUrl { get; set; } = "";
-    
-    public string DireccionAcademia => "El descanso del guerrero - Mochica";
-
-    public void OnGet()
+    public class Alumno
     {
-        AccesoConcedido = false;
-        InicializarBaseDeDatos();
-        if (EsAdminSesion)
-        {
-            CargarDatosAdmin();
-        }
+        public int Id { get; set; }
+        
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        [StringLength(100, ErrorMessage = "El nombre es demasiado largo")]
+        public string Nombre { get; set; } = string.Empty;
+        
+        [Required(ErrorMessage = "El DNI es obligatorio")]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "El DNI debe tener exactamente 8 caracteres")]
+        public string Dni { get; set; } = string.Empty;
+        
+        [Required(ErrorMessage = "El celular es obligatorio")]
+        public string Celular { get; set; } = string.Empty;
+        
+        [Range(18, 99, ErrorMessage = "Debe ser mayor de 18 años")]
+        public int Edad { get; set; }
+        
+        public string EstadoPago { get; set; } = "Deuda Pendiente";
+        public string Asistencias { get; set; } = "Sin registros";
     }
 
-    public void OnPostBuscar()
+    public class NuevoInscrito
     {
-        InicializarBaseDeDatos();
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string Dni { get; set; } = string.Empty;
+        public string Celular { get; set; } = string.Empty;
+        public int Edad { get; set; }
+        public string Fecha { get; set; } = string.Empty;
+    }
 
-        if (DniConsulta == "70961785")
+    public class AcademiaDbContext : DbContext
+    {
+        public AcademiaDbContext(DbContextOptions<AcademiaDbContext> options) : base(options) { }
+        public DbSet<Alumno> Alumnos { get; set; } = null!;
+        public DbSet<NuevoInscrito> NuevosInscritos { get; set; } = null!;
+    }
+
+    public class IndexModel : PageModel
+    {
+        private readonly AcademiaDbContext _context;
+
+        public IndexModel(AcademiaDbContext context)
         {
-            EsAdminSesion = true;
-            AccesoConcedido = false;
-            TipoAlerta = "success";
-            MensajeAlerta = "👑 ¡Acceso Concedido, Administrador! Desplegando panel de control.";
-            CargarDatosAdmin();
-            return;
+            _context = context;
         }
 
-        EsAdminSesion = false; 
+        // Propiedades de configuración de la Academia
+        public string DireccionAcademia { get; set; } = "Complejo Deportivo PJ, Trujillo";
+        public int MontoInscripcion { get; set; } = 10;
 
-        using (var connection = new SqliteConnection(ConnectionString))
+        // Gestión de alertas del sistema
+        [TempData]
+        public string MensajeAlerta { get; set; } = string.Empty;
+        
+        [TempData]
+        public string TipoAlerta { get; set; } = "info";
+
+        // Control de Sesión Administrativa
+        public static bool EsAdminSesion { get; set; } = false;
+
+        // Propiedades para renderizar la Ficha del Alumno
+        public bool AccesoConcedido { get; set; } = false;
+        public string AlumnoNombre { get; set; } = string.Empty;
+        public string AlumnoDni { get; set; } = string.Empty;
+        public string AlumnoCelular { get; set; } = string.Empty;
+        public string AlumnoEstadoPago { get; set; } = string.Empty;
+        public string AlumnoAsistencias { get; set; } = string.Empty;
+        public string WhatsappUrl { get; set; } = string.Empty;
+
+        // Bindeos detallados de los Formularios Públicos
+        [BindProperty]
+        [Required(ErrorMessage = "Debe ingresar un DNI")]
+        public string DniConsulta { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string NuevoNombre { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string NuevoDni { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string NuevoCelular { get; set; } = string.Empty;
+
+        [BindProperty]
+        public int NuevoEdad { get; set; }
+
+        // Bindeos detallados del Panel de Administración Manual
+        [BindProperty]
+        public string AdminManualNombre { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string AdminManualDni { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string AdminManualCelular { get; set; } = string.Empty;
+
+        [BindProperty]
+        public int AdminManualEdad { get; set; }
+
+        [BindProperty]
+        public string AdminManualEstadoPago { get; set; } = "Al día";
+
+        // Colecciones en memoria para visualización de Tablas
+        public List<Alumno> ListaAlumnos { get; set; } = new List<Alumno>();
+        public List<NuevoInscrito> ListaNuevosInscritos { get; set; } = new List<NuevoInscrito>();
+
+        // Método de Carga Inicial de la Página
+        public async Task OnGetAsync()
         {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT Nombre, Celular, Edad, EstadoPago, Asistencias FROM Alumnos WHERE Dni = $dni";
-            command.Parameters.AddWithValue("$dni", DniConsulta);
-
-            using (var reader = command.ExecuteReader())
+            try 
             {
-                if (reader.Read())
+                ListaAlumnos = await _context.Alumnos.ToListAsync();
+                ListaNuevosInscritos = await _context.NuevosInscritos.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                MensajeAlerta = "Error al cargar los datos iniciales del servidor: " + ex.Message;
+                TipoAlerta = "danger";
+            }
+        }
+
+        // Handler Completo para Búsqueda de Alumnos y Acceso Admin
+        public async Task<IActionResult> OnPostBuscarAsync()
+        {
+            if (string.IsNullOrEmpty(DniConsulta))
+            {
+                MensajeAlerta = "Por favor, introduzca un número de DNI válido.";
+                TipoAlerta = "warning";
+                ListaAlumnos = await _context.Alumnos.ToListAsync();
+                ListaNuevosInscritos = await _context.NuevosInscritos.ToListAsync();
+                return Page();
+            }
+
+            if (DniConsulta.Trim() == "ADMIN123")
+            {
+                EsAdminSesion = true;
+                MensajeAlerta = "¡Bienvenido de vuelta, Alessandro! Autenticación como administrador correcta.";
+                TipoAlerta = "success";
+                ListaAlumnos = await _context.Alumnos.ToListAsync();
+                ListaNuevosInscritos = await _context.NuevosInscritos.ToListAsync();
+                return RedirectToPage();
+            }
+
+            var alumno = await _context.Alumnos.FirstOrDefaultAsync(a => a.Dni == DniConsulta.Trim());
+            
+            if (alumno != null)
+            {
+                AccesoConcedido = true;
+                AlumnoNombre = alumno.Nombre;
+                AlumnoDni = alumno.Dni;
+                AlumnoCelular = alumno.Celular;
+                AlumnoEstadoPago = alumno.EstadoPago;
+                AlumnoAsistencias = alumno.Asistencias;
+                MensajeAlerta = "Ficha deportiva encontrada correctamente.";
+                TipoAlerta = "success";
+            }
+            else
+            {
+                AccesoConcedido = false;
+                MensajeAlerta = "El DNI ingresado no coincide con ningún alumno registrado en el sistema actual.";
+                TipoAlerta = "danger";
+            }
+
+            ListaAlumnos = await _context.Alumnos.ToListAsync();
+            ListaNuevosInscritos = await _context.NuevosInscritos.ToListAsync();
+            return Page();
+        }
+
+        // Handler Completo para Auto-Inscripción Externa de Usuarios
+        public async Task<IActionResult> OnPostInscribirAsync()
+        {
+            if (string.IsNullOrEmpty(NuevoNombre) || string.IsNullOrEmpty(NuevoDni) || string.IsNullOrEmpty(NuevoCelular))
+            {
+                MensajeAlerta = "Todos los campos de inscripción son obligatorios para separar vacante.";
+                TipoAlerta = "danger";
+                ListaAlumnos = await _context.Alumnos.ToListAsync();
+                ListaNuevosInscritos = await _context.NuevosInscritos.ToListAsync();
+                return Page();
+            }
+
+            if (NuevoEdad < 18)
+            {
+                MensajeAlerta = "Inscripción denegada de forma automática. La academia solo admite mayores de edad (+18).";
+                TipoAlerta = "danger";
+                ListaAlumnos = await _context.Alumnos.ToListAsync();
+                ListaNuevosInscritos = await _context.NuevosInscritos.ToListAsync();
+                return Page();
+            }
+
+            var existeEnOficiales = await _context.Alumnos.AnyAsync(a => a.Dni == NuevoDni.Trim());
+            if (existeEnOficiales)
+            {
+                MensajeAlerta = "Este número de DNI ya corresponde a un miembro activo de la Academia PJ.";
+                TipoAlerta = "warning";
+                ListaAlumnos = await _context.Alumnos.ToListAsync();
+                ListaNuevosInscritos = await _context.NuevosInscritos.ToListAsync();
+                return Page();
+            }
+
+            var nuevoInscrito = new NuevoInscrito
+            {
+                Nombre = NuevoNombre.Trim(),
+                Dni = NuevoDni.Trim(),
+                Celular = NuevoCelular.Trim(),
+                Edad = NuevoEdad,
+                Fecha = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+            };
+
+            try
+            {
+                _context.NuevosInscritos.Add(nuevoInscrito);
+                await _context.SaveChangesAsync();
+                
+                string msgWa = $"Hola, deseo unirme a la Academia PJ. Mis datos:\n⚽ Nombre: {NuevoNombre}\n🪪 DNI: {NuevoDni}\n📱 Celular: {NuevoCelular}";
+                WhatsappUrl = $"https://wa.me/51924082729?text={Uri.EscapeDataString(msgWa)}";
+                
+                MensajeAlerta = "¡Felicidades! Tus datos provisionales han sido guardados. Procede a enviar el WhatsApp.";
+                TipoAlerta = "success";
+            }
+            catch (Exception ex)
+            {
+                MensajeAlerta = "Ocurrió un error al procesar el registro en SQLite: " + ex.Message;
+                TipoAlerta = "danger";
+            }
+
+            ListaAlumnos = await _context.Alumnos.ToListAsync();
+            ListaNuevosInscritos = await _context.NuevosInscritos.ToListAsync();
+            return Page();
+        }
+
+        // Handler Completo para Inserción Manual desde el Panel
+        public async Task<IActionResult> OnPostAgregarAlumnoManualAsync()
+        {
+            if (!EsAdminSesion) 
+            {
+                return RedirectToPage();
+            }
+
+            if (string.IsNullOrEmpty(AdminManualNombre) || string.IsNullOrEmpty(AdminManualDni))
+            {
+                MensajeAlerta = "Los campos de Nombre y DNI son cruciales en la inserción manual.";
+                TipoAlerta = "warning";
+                return RedirectToPage();
+            }
+
+            var existeDni = await _context.Alumnos.AnyAsync(a => a.Dni == AdminManualDni.Trim());
+            if (existeDni)
+            {
+                MensajeAlerta = "Conflicto de duplicidad: El DNI ingresado ya existe en la lista oficial.";
+                TipoAlerta = "danger";
+                return RedirectToPage();
+            }
+
+            var nuevo = new Alumno
+            {
+                Nombre = AdminManualNombre.Trim(),
+                Dni = AdminManualDni.Trim(),
+                Celular = AdminManualCelular.Trim(),
+                Edad = AdminManualEdad,
+                EstadoPago = AdminManualEstadoPago,
+                Asistencias = "Sin faltas registradas (Alta manual de administrador)"
+            };
+
+            try 
+            {
+                _context.Alumnos.Add(nuevo);
+                await _context.SaveChangesAsync();
+                MensajeAlerta = $"El alumno {AdminManualNombre} ha sido registrado de forma exitosa y persistente.";
+                TipoAlerta = "success";
+            }
+            catch (Exception ex)
+            {
+                MensajeAlerta = "Error crítico de base de datos durante inserción manual: " + ex.Message;
+                TipoAlerta = "danger";
+            }
+
+            return RedirectToPage();
+        }
+
+        // Handler Seguro de Eliminación por ID único (Evita errores 400 de conversión)
+        public async Task<IActionResult> OnPostEliminarAlumnoAsync(int id)
+        {
+            if (!EsAdminSesion) 
+            {
+                return RedirectToPage();
+            }
+
+            try 
+            {
+                var alumnoARemover = await _context.Alumnos.FindAsync(id);
+                
+                if (alumnoARemover != null)
                 {
-                    AlumnoNombre = reader.GetString(0);
-                    AlumnoCelular = reader.GetString(1);
-                    AlumnoEdad = reader.GetInt32(2);
-                    AlumnoEstadoPago = reader.GetString(3);
-                    AlumnoAsistencias = reader.GetString(4);
-                    AlumnoDni = DniConsulta;
-                    
-                    AccesoConcedido = true;
+                    _context.Alumnos.Remove(alumnoARemover);
+                    await _context.SaveChangesAsync();
+                    MensajeAlerta = $"El registro del alumno '{alumnoARemover.Nombre}' ha sido purgado del archivo permanentemente.";
                     TipoAlerta = "success";
-                    MensajeAlerta = $"¡Bienvenido, {AlumnoNombre}! Ficha deportiva cargada.";
                 }
                 else
                 {
-                    AccesoConcedido = false;
+                    MensajeAlerta = "No se logró ubicar al alumno seleccionado en el archivo SQLite.";
                     TipoAlerta = "danger";
-                    MensajeAlerta = "El DNI ingresado no se encuentra registrado en la academia.";
                 }
             }
-        }
-    }
-
-    public void OnPostInscribir()
-    {
-        EsAdminSesion = false;
-        InicializarBaseDeDatos();
-
-        if (NuevoEdad < 18)
-        {
-            TipoAlerta = "danger";
-            MensajeAlerta = "Inscripción rechazada. La academia es para mayores de 18 años.";
-            return;
-        }
-
-        if (ExisteDni(NuevoDni))
-        {
-            TipoAlerta = "danger";
-            MensajeAlerta = "Este DNI ya figura registrado en la academia.";
-            return;
-        }
-
-        string fechaActual = DateTime.Now.ToString("dd/MM hh:mm tt");
-
-        using (var connection = new SqliteConnection(ConnectionString))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = "INSERT INTO NuevosInscritos (Nombre, Dni, Celular, Edad, Fecha) VALUES ($nombre, $dni, $celular, $edad, $fecha)";
-            command.Parameters.AddWithValue("$nombre", NuevoNombre);
-            command.Parameters.AddWithValue("$dni", NuevoDni);
-            command.Parameters.AddWithValue("$celular", NuevoCelular);
-            command.Parameters.AddWithValue("$edad", NuevoEdad);
-            command.Parameters.AddWithValue("$fecha", fechaActual);
-            command.ExecuteNonQuery();
-        }
-
-        string numeroAcademia = "51904177349"; 
-        string mensajeTexto = $"⚽ *NUEVA INSCRIPCIÓN - ACADEMIA PJ* ⚽\n\n" +
-                              $"¡Hola! Me acabo de registrar desde la web para unirme a la academia:\n\n" +
-                              $"👤 *Nombre:* {NuevoNombre}\n" +
-                              $"🪪 *DNI:* {NuevoDni}\n" +
-                              $"🎂 *Edad:* {NuevoEdad} años\n" +
-                              $"📱 *Celular:* {NuevoCelular}\n" +
-                              $"💰 *Monto:* S/ {MontoInscripcion} (Fijo)\n" +
-                              $"📍 *Sede:* {DireccionAcademia}";
-
-        string mensajeCodificado = Uri.EscapeDataString(mensajeTexto);
-        WhatsappUrl = $"https://api.whatsapp.com/send?phone={numeroAcademia}&text={mensajeCodificado}";
-        
-        TipoAlerta = "success";
-        MensajeAlerta = "¡Ficha de inscripción generada con éxito!";
-    }
-
-    public void OnPostAgregarAlumnoManual()
-    {
-        InicializarBaseDeDatos();
-
-        if (ExisteDni(AdminManualDni))
-        {
-            TipoAlerta = "danger";
-            MensajeAlerta = $"Error: El DNI {AdminManualDni} ya está registrado.";
-            CargarDatosAdmin();
-            return;
-        }
-
-        using (var connection = new SqliteConnection(ConnectionString))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = "INSERT INTO Alumnos (Dni, Nombre, Celular, Edad, EstadoPago, Asistencias) VALUES ($dni, $nombre, $celular, $edad, $estado, $asistencias)";
-            command.Parameters.AddWithValue("$dni", AdminManualDni);
-            command.Parameters.AddWithValue("$nombre", AdminManualNombre);
-            command.Parameters.AddWithValue("$celular", AdminManualCelular);
-            command.Parameters.AddWithValue("$edad", AdminManualEdad);
-            command.Parameters.AddWithValue("$estado", AdminManualEstadoPago);
-            command.Parameters.AddWithValue("$asistencias", "Sin asistencias marcadas");
-            command.ExecuteNonQuery();
-        }
-        
-        TipoAlerta = "success";
-        MensajeAlerta = $"⚽ ¡Registrado! {AdminManualNombre} ya puede consultar su estado con su DNI.";
-        CargarDatosAdmin();
-    }
-
-    public void OnPostCerrarAdmin()
-    {
-        EsAdminSesion = false;
-        AccesoConcedido = false;
-    }
-
-    // 🚀 FUNCIÓN AGREGADA: Elimina al alumno usando comandos directos de SQLite
-    public IActionResult OnPostEliminarAlumno(string dni)
-    {
-        using (var connection = new SqliteConnection(ConnectionString))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM Alumnos WHERE Dni = $dni";
-            command.Parameters.AddWithValue("$dni", dni);
-            command.ExecuteNonQuery();
-        }
-
-        TipoAlerta = "success";
-        MensajeAlerta = "El alumno ha sido eliminado correctamente del sistema.";
-        
-        // Recargamos los datos del panel de administrador
-        CargarDatosAdmin();
-        return Page();
-    }
-
-    private void InicializarBaseDeDatos()
-    {
-        using (var connection = new SqliteConnection(ConnectionString))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            
-            command.CommandText = @"
-                CREATE TABLE IF NOT EXISTS Alumnos (
-                    Dni TEXT PRIMARY KEY,
-                    Nombre TEXT,
-                    Celular TEXT,
-                    Edad INTEGER,
-                    EstadoPago TEXT,
-                    Asistencias TEXT
-                );";
-            command.ExecuteNonQuery();
-
-            command.CommandText = @"
-                CREATE TABLE IF NOT EXISTS NuevosInscritos (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Nombre TEXT,
-                    Dni TEXT,
-                    Celular TEXT,
-                    Edad INTEGER,
-                    Fecha TEXT
-                );";
-            command.ExecuteNonQuery();
-
-            command.CommandText = "SELECT COUNT(*) FROM Alumnos";
-            long count = (long)(command.ExecuteScalar() ?? 0);
-            if (count == 0)
+            catch (Exception ex)
             {
-                command.CommandText = @"
-                    INSERT INTO Alumnos (Dni, Nombre, Celular, Edad, EstadoPago, Asistencias) VALUES 
-                    ('74589632', 'Alessandro Lozano', '987654321', 21, 'Al día', 'Mar (Asistió) - Jue (Asistió)'),
-                    ('45127896', 'Carlos Mendoza', '912345678', 25, 'Deuda Pendiente', 'Mié (Faltó) - Vie (Asistió)');";
-                command.ExecuteNonQuery();
-            }
-        }
-    }
-
-    private bool ExisteDni(string dni)
-    {
-        using (var connection = new SqliteConnection(ConnectionString))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT COUNT(*) FROM Alumnos WHERE Dni = $dni";
-            command.Parameters.AddWithValue("$dni", dni);
-            long count = (long)(command.ExecuteScalar() ?? 0);
-            return count > 0;
-        }
-    }
-
-    private void CargarDatosAdmin()
-    {
-        ListaAlumnos.Clear();
-        ListaNuevosInscritos.Clear();
-
-        using (var connection = new SqliteConnection(ConnectionString))
-        {
-            connection.Open();
-            
-            var cmdAlumnos = connection.CreateCommand();
-            cmdAlumnos.CommandText = "SELECT Nombre, Dni, Celular, Edad, EstadoPago, Asistencias FROM Alumnos";
-            using (var reader = cmdAlumnos.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    ListaAlumnos.Add((
-                        reader.GetString(0),
-                        reader.GetString(1),
-                        reader.GetString(2),
-                        reader.GetInt32(3),
-                        reader.GetString(4),
-                        reader.GetString(5)
-                    ));
-                }
+                MensajeAlerta = "Error excepcional al procesar la solicitud de borrado: " + ex.Message;
+                TipoAlerta = "danger";
             }
 
-            var cmdNuevos = connection.CreateCommand();
-            cmdNuevos.CommandText = "SELECT Nombre, Dni, Celular, Edad, Fecha FROM NuevosInscritos ORDER BY Id DESC";
-            using (var reader = cmdNuevos.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    ListaNuevosInscritos.Add((
-                        reader.GetString(0),
-                        reader.GetString(1),
-                        reader.GetString(2),
-                        reader.GetInt32(3),
-                        reader.GetString(4)
-                    ));
-                }
-            }
+            return RedirectToPage();
+        }
+
+        // Cierre Seguro de Sesión del Administrador
+        public IActionResult OnPostCerrarAdmin()
+        {
+            EsAdminSesion = false;
+            MensajeAlerta = "Sesión de administración finalizada de manera segura.";
+            TipoAlerta = "info";
+            return RedirectToPage();
         }
     }
 }
