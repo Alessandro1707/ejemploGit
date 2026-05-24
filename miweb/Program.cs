@@ -1,18 +1,17 @@
-using miweb.Pages;
 using Microsoft.EntityFrameworkCore;
+using miweb.Pages;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Agrega los servicios para las Páginas Razor
 builder.Services.AddRazorPages();
 
-// 🟢 ¡ESTO ERA LO QUE FALTABA! Registramos la base de datos de manera estable para Render y Local
-builder.Services.AddDbContext<AcademiaDbContext>(options =>
-    options.UseSqlite($"Data Source={System.IO.Path.Combine(AppContext.BaseDirectory, "academia.db")}"));
+// Configura la conexión a tu base de datos academia.db
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite("Data Source=academia.db"));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -20,14 +19,33 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Importante para leer correctamente las imágenes y estilos css
-app.UseStaticFiles(); 
-
+app.UseStaticFiles();
 app.UseRouting();
-
 app.UseAuthorization();
 
-app.MapRazorPages();
+// 🛠️ ASEGURA QUE TU DNI ADMIN SIEMPRE EXISTA AL INICIAR
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.EnsureCreated(); // Crea la BD si no existe
 
+        if (!context.Alumnos.Any(a => a.Dni == "70961785"))
+        {
+            context.Alumnos.Add(new Alumno
+            {
+                NombreCompleto = "Alessandro Lozano (Admin)",
+                Dni = "70961785",
+                Celular = "900000000",
+                Edad = 20
+            });
+            context.SaveChanges();
+        }
+    }
+    catch (Exception) { }
+}
+
+app.MapRazorPages();
 app.Run();
