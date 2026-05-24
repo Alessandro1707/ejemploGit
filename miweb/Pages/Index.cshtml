@@ -1,21 +1,68 @@
 ﻿@page
-@model IndexModel
+@model miweb.Pages.IndexModel
+@{
+    Layout = "_Layout";
+}
 
-<div class="card p-4 border-primary" style="border-width: 2px; background-color: #ffffff;">
-            <h3 class="text-primary mb-3">⚽ Alumnos de la Academia</h3>
-            <p class="text-muted">Ingresa tu número de DNI para verificar asistencias y pagos.</p>
-            
-            <form method="post" asp-page-handler="Consultar">
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-secondary">Ingresa tu DNI Registrado:</label>
-                    
-                    <input type="text" asp-for="DniIngresado" 
-                           class="form-control form-control-lg text-center" 
-                           placeholder="Ingrese su DNI" maxlength="8" required />
-                </div>
+<div class="container mt-4">
+    <div class="row g-4">
+        
+        <div class="col-md-6">
+            <div class="card p-4 h-100 border-success" style="border-width: 2px; background-color: #ffffff; color: #333333;">
+                <h3 class="text-success mb-3">✍️ ¿Eres Nuevo? ¡Inscríbete!</h3>
+                <p class="text-muted">Ingresa tus datos oficiales para separar tu cupo.</p>
                 
-                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">
-                    Consultar Ficha Deportiva 🔍
-                </button>
-            </form>
+                <form method="post" asp-page-handler="Registrar">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary" for="NombreCompleto">Nombre Completo:</label>
+                        <input type="text" id="NombreCompleto" name="NombreCompleto" class="form-control" placeholder="Ej. Juan Carlos" required />
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold text-secondary" for="Dni">DNI:</label>
+                            <input type="text" id="Dni" name="Dni" class="form-control" placeholder="8 dígitos" maxlength="8" required />
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold text-secondary" for="Celular">Celular:</label>
+                            <input type="text" id="Celular" name="Celular" class="form-control" placeholder="Ej. 999333222" maxlength="9" required />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary" for="Edad">Edad:</label>
+                        <input type="number" id="Edad" name="Edad" class="form-control" value="0" min="5" max="40" required />
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded mb-4">
+                        <span class="text-secondary fw-bold">Costo Inscripción:</span>
+                        <span class="text-success fw-bold fs-5">S/ 109.00</span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">
+                        Registrar Inscripción ➡️
+                    </button>
+                </form>
+            </div>
         </div>
+
+        <div class="col-md-6">
+            <div class="card p-4 h-100 border-primary" style="border-width: 2px; background-color: #ffffff; color: #333333;">
+                <h3 class="text-primary mb-3">⚽ Alumnos de la Academia</h3>
+                <p class="text-muted">Ingresa tu número de DNI para verificar asistencias y pagos.</p>
+                
+                <form method="post" asp-page-handler="Consultar">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">Ingresa tu DNI Registrado:</label>
+                        <input type="text" asp-for="DniIngresado" class="form-control form-control-lg text-center fw-bold fs-4" placeholder="Ingrese su DNI" maxlength="8" required />
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3">
+                        Consultar Ficha Deportiva 🔍
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -3,43 +3,49 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - miweb</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    
+    <title>Academia de Fútbol</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     <style>
-        @@font-face {
-            font-family: 'A4Speed';
-            src: url('/A4SPEED-Bold.ttf') format('truetype');
-            font-weight: bold;
-            font-style: normal;
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .fuente-academia {
-            font-family: 'A4Speed', sans-serif;
-            text-transform: uppercase;
-            font-style: italic; /* Da el efecto inclinado y veloz de la fuente */
+        .navbar {
+            background-color: #1a1a1a !important;
+            border-bottom: 3px solid #198754;
+        }
+        footer {
+            background-color: #1a1a1a;
+            color: #aaa;
         }
     </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark box-shadow mb-4">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">miweb</a>
+                <a class="navbar-brand fw-bold text-success" asp-area="" asp-page="/Index">
+                    ⚽ ACADEMIA PJ
+                </a>
             </div>
         </nav>
     </header>
-    
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <footer class="border-top footer text-muted text-center py-3 mt-5">
+        <div class="container">
+            &copy; 2026 - Panel de Control Deportivo
+        </div>
+    </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
