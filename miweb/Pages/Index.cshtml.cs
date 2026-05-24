@@ -1,64 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace miweb.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        // 🔑 Vinculamos la propiedad para que el HTML la pueda leer sin problemas
+        [BindProperty]
+        public string DniIngresado { get; set; } = string.Empty;
 
-        public IndexModel(ApplicationDbContext context)
+        public void OnGet()
         {
-            _context = context;
         }
 
-        [BindProperty]
-        public Alumno NuevoAlumno { get; set; } = new Alumno();
-
-        [TempData]
-        public string? ErrorDni { get; set; }
-
-        public void OnGet() { }
-
-        // 🔍 CONSULTAR FICHA / ACCESO ADMIN
-        public async Task<IActionResult> OnPostConsultarAsync(string dniIngresado)
+        // 🚀 Se ejecuta al presionar el botón azul de consulta
+        public IActionResult OnPostConsultar()
         {
-            if (dniIngresado == "70961785")
+            // Validamos tu DNI de administrador
+            if (DniIngresado == "70961785")
             {
+                // Te envía directo a la administración de alumnos
                 return RedirectToPage("/admin/PanelAlumnos");
             }
 
-            var alumno = await _context.Alumnos.FirstOrDefaultAsync(a => a.Dni == dniIngresado);
-            if (alumno == null)
-            {
-                ErrorDni = "El DNI ingresado no coincide con ningún alumno registrado en el sistema actual.";
-                return Page();
-            }
-
-            return RedirectToPage("/Index"); 
-        }
-
-        // 📲 REGISTRAR EN BD Y REDIRECCIONAR A WHATSAPP
-        public async Task<IActionResult> OnPostRegistrarAsync()
-        {
-            if (!ModelState.IsValid) return Page();
-
-            _context.Alumnos.Add(NuevoAlumno);
-            await _context.SaveChangesAsync();
-
-            // ⚠️ PON AQUÍ EL CELULAR REAL DE LA ACADEMIA (Ej: "51987654321")
-            string telefonoAcademia = "51904177349"; 
-            
-            string mensaje = $"Hola, quiero confirmar mi inscripción:\n\n" +
-                             $"*Nombre:* {NuevoAlumno.NombreCompleto}\n" +
-                             $"*DNI:* {NuevoAlumno.Dni}\n" +
-                             $"*Celular:* {NuevoAlumno.Celular}\n" +
-                             $"*Edad:* {NuevoAlumno.Edad} años\n" +
-                             $"*Costo:* S/ 109.00";
-
-            string urlWhatsapp = $"https://api.whatsapp.com/send?phone={telefonoAcademia}&text={Uri.EscapeDataString(mensaje)}";
-            return Redirect(urlWhatsapp);
+            // Si es otro DNI, por ahora solo refresca el inicio
+            return RedirectToPage();
         }
     }
 }
