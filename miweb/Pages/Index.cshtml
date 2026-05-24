@@ -1,69 +1,63 @@
 ﻿@page
-@model miweb.Pages.IndexModel
+@model IndexModel
 @{
-    ViewData["Title"] = "Inicio - Academia de Fútbol";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="container mt-5" style="max-width: 900px;">
-    
-    @if (Model.ErrorDni != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
-            ❌ @Model.ErrorDni
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card p-4 border-success" style="border-width: 2px;">
+            <h3 class="text-success mb-3">✍️ ¿Eres Nuevo? ¡Inscríbete!</h3>
+            <p class="text-muted">Ingresa tus datos oficiales para separar tu cupo.</p>
+            
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre Completo:</label>
+                    <input type="text" class="form-control" placeholder="Ej. Juan Carlos" required />
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label fw-bold">DNI:</label>
+                        <input type="text" class="form-control" placeholder="8 dígitos" maxlength="8" required />
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label fw-bold">Celular:</label>
+                        <input type="text" class="form-control" placeholder="Ej. 999333222" required />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Edad:</label>
+                    <input type="number" class="form-control" value="0" required />
+                </div>
+                <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-3">
+                    <span class="text-muted">Costo Inscripción:</span>
+                    <span class="fw-bold text-success fs-5">S/ 109.00</span>
+                </div>
+                <button type="submit" class="btn btn-success w-100 fw-bold">Registrar Inscripción ➡️</button>
+            </form>
         </div>
-    }
+    </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card p-4 shadow-sm" style="border-top: 5px solid #198754;">
-                <h4 class="mb-3 text-success">✍️ ¿Eres Nuevo? ¡Inscríbete!</h4>
-                <p class="text-muted small">Ingresa tus datos oficiales para separar tu cupo.</p>
-                
-                <form method="post" asp-page-handler="Registrar">
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold">Nombre Completo:</label>
-                        <input type="text" asp-for="NuevoAlumno.NombreCompleto" class="form-control" placeholder="Ej. Juan Carlos" required>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="form-label font-weight-bold">DNI:</label>
-                            <input type="text" asp-for="NuevoAlumno.Dni" class="form-control" placeholder="8 dígitos" maxlength="8" required>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <label class="form-label font-weight-bold">Celular:</label>
-                            <input type="text" asp-for="NuevoAlumno.Celular" class="form-control" placeholder="Ej. 999333222" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold">Edad:</label>
-                        <input type="number" asp-for="NuevoAlumno.Edad" class="form-control" min="1" required>
-                    </div>
-
-                    <div class="mb-4 p-2 bg-light rounded d-flex justify-content-between align-items-center">
-                        <span class="text-muted">Costo Inscripción:</span>
-                        <strong class="text-success">S/ 109.00</strong>
-                    </div>
-
-                    <button type="submit" class="btn btn-success w-100 font-weight-bold">Registrar Inscripción ➡️</button>
-                </form>
-            </div>
+    <div class="col-md-6 mb-4 d-flex flex-column justify-content-end">
+        
+        <div class="text-center mb-3">
+            <h1 class="fuente-academia text-primary display-3 m-0" style="letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
+                ACADEMIA PJ
+            </h1>
         </div>
 
-        <div class="col-md-6 mb-4">
-            <div class="card p-4 shadow-sm" style="border-top: 5px solid #0d6efd;">
-                <h4 class="mb-3 text-primary">⚽ Alumnos de la Academia</h4>
-                <p class="text-muted small">Ingresa tu número de DNI para verificar asistencias y pagos.</p>
-                
-                <form method="post" asp-page-handler="Consultar" class="mt-4">
-                    <div class="mb-4">
-                        <label class="form-label font-weight-bold">Ingresa tu DNI Registrado:</label>
-                        <input type="text" name="dniIngresado" class="form-control form-control-lg text-center" placeholder="Ingrese su DNI" maxlength="8" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 btn-lg font-weight-bold">Consultar Ficha Deportiva 🔍</button>
-                </form>
+        <div class="card p-4 border-primary" style="border-width: 2px; background-color: #ffffff;">
+            <h3 class="text-primary mb-3">⚽ Alumnos de la Academia</h3>
+            <p class="text-muted">Ingresa tu número de DNI para verificar asistencias y pagos.</p>
+            
+            <div class="mb-4">
+                <label class="form-label fw-bold text-secondary">Ingresa tu DNI Registrado:</label>
+                <input type="text" class="form-control form-control-lg text-center" placeholder="Ingrese su DNI" maxlength="8" />
             </div>
+            
+            <button type="button" class="btn btn-primary btn-lg w-100 fw-bold">
+                Consultar Ficha Deportiva 🔍
+            </button>
         </div>
     </div>
 </div>
