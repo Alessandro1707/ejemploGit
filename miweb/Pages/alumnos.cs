@@ -7,8 +7,12 @@ namespace miweb.Pages
         public string Dni { get; set; } = string.Empty;
         public string Celular { get; set; } = string.Empty;
         public int Edad { get; set; } 
-        
-        // 📅 NUEVO: Guarda la fecha del último pago (Ej: "14-05")
         public string FechaPago { get; set; } = string.Empty;
+
+        // 📝 NUEVO: Control de asistencia de la semana
+        public bool AsistioMartes { get; set; }
+        public bool AsistioMiercoles { get; set; }
+        public bool AsistioJueves { get; set; }
+        public bool AsistioViernes { get; set; }
     }
 }

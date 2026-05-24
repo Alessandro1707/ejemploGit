@@ -46,10 +46,11 @@
                 <tr class="table-success text-dark">
                     <th>Nombre Completo</th>
                     <th>DNI</th>
-                    <th>Celular</th>
-                    <th>Edad</th>
-                    <th>Último Pago</th>
-                    <th class="text-warning">Próximo Pago</th>
+                    <th>Mensualidad</th>
+                    <th class="text-center">Mar</th>
+                    <th class="text-center">Mié</th>
+                    <th class="text-center">Jue</th>
+                    <th class="text-center">Vie</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -61,22 +62,26 @@
                         <tr>
                             <td>@alumno.NombreCompleto</td>
                             <td>@alumno.Dni</td>
-                            <td>@alumno.Celular</td>
-                            <td>@alumno.Edad años</td>
-                            <td>📅 @(string.IsNullOrEmpty(alumno.FechaPago) ? "Sin registro" : alumno.FechaPago)</td>
-                            <td class="text-warning fw-bold">📅 @Model.CalcularProximoPago(alumno.FechaPago)</td>
+                            <td>
+                                <small class="text-muted">Pago:</small> @(string.IsNullOrEmpty(alumno.FechaPago) ? "S/R" : alumno.FechaPago)<br />
+                                <small class="text-warning">Próx:</small> <span class="text-warning fw-bold">@Model.CalcularProximoPago(alumno.FechaPago)</span>
+                            </td>
+                            <td class="text-center">@(alumno.AsistioMartes ? "🟢" : "🔴")</td>
+                            <td class="text-center">@(alumno.AsistioMiercoles ? "🟢" : "🔴")</td>
+                            <td class="text-center">@(alumno.AsistioJueves ? "🟢" : "🔴")</td>
+                            <td class="text-center">@(alumno.AsistioViernes ? "🟢" : "🔴")</td>
                             <td class="text-center">
                                 <div class="d-flex gap-2 justify-content-center">
                                     <button class="btn btn-warning btn-sm text-dark fw-bold" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#modalEditar"
-                                            onclick="cargarDatos('@alumno.Id', '@alumno.NombreCompleto', '@alumno.Dni', '@alumno.Celular', '@alumno.Edad', '@alumno.FechaPago')">
-                                        📝 Editar
+                                            onclick="cargarDatos('@alumno.Id', '@alumno.NombreCompleto', '@alumno.Dni', '@alumno.Celular', '@alumno.Edad', '@alumno.FechaPago', '@alumno.AsistioMartes.ToString().ToLower()', '@alumno.AsistioMiercoles.ToString().ToLower()', '@alumno.AsistioJueves.ToString().ToLower()', '@alumno.AsistioViernes.ToString().ToLower()')">
+                                        📝 Asistencia / Editar
                                     </button>
 
                                     <form method="post" asp-page-handler="Eliminar" asp-route-id="@alumno.Id" 
                                           onsubmit="return confirm('¿Seguro que deseas eliminar a este alumno?');">
-                                        <button type="submit" class="btn btn-danger btn-sm">❌ Eliminar</button>
+                                        <button type="submit" class="btn btn-danger btn-sm">❌</button>
                                     </form>
                                 </div>
                             </td>
@@ -86,7 +91,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="7" class="text-center text-muted">No hay alumnos registrados aún.</td>
+                        <td colspan="8" class="text-center text-muted">No hay alumnos registrados.</td>
                     </tr>
                 }
             </tbody>
@@ -102,37 +107,63 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark text-white border-secondary">
             <div class="modal-header bg-secondary">
-                <h5 class="modal-title">📝 Editar Ficha del Alumno</h5>
+                <h5 class="modal-title">📝 Editar Ficha y Asistencia</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" asp-page-handler="Editar">
                 <div class="modal-body">
                     <input type="hidden" id="editId" asp-for="AlumnoInput.Id" />
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label">Nombre Completo:</label>
                         <input type="text" id="editNombre" asp-for="AlumnoInput.NombreCompleto" class="form-control bg-secondary text-white" required />
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">DNI:</label>
-                        <input type="text" id="editDni" asp-for="AlumnoInput.Dni" class="form-control bg-secondary text-white" maxlength="8" required />
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">DNI:</label>
+                            <input type="text" id="editDni" asp-for="AlumnoInput.Dni" class="form-control bg-secondary text-white" maxlength="8" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">Celular:</label>
+                            <input type="text" id="editCelular" asp-for="AlumnoInput.Celular" class="form-control bg-secondary text-white" required />
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Celular:</label>
-                        <input type="text" id="editCelular" asp-for="AlumnoInput.Celular" class="form-control bg-secondary text-white" required />
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Edad:</label>
+                            <input type="number" id="editEdad" asp-for="AlumnoInput.Edad" class="form-control bg-secondary text-white" required />
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Día de Pago (DD-MM):</label>
+                            <input type="text" id="editFecha" asp-for="AlumnoInput.FechaPago" class="form-control bg-secondary text-white" required />
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Edad:</label>
-                        <input type="number" id="editEdad" asp-for="AlumnoInput.Edad" class="form-control bg-secondary text-white" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Día de Pago (DD-MM):</label>
-                        <input type="text" id="editFecha" asp-for="AlumnoInput.FechaPago" class="form-control bg-secondary text-white" required />
+
+                    <hr class="border-secondary" />
+                    <h6 class="text-success mb-2">📅 Asistencia de la Semana:</h6>
+                    
+                    <div class="row px-2">
+                        <div class="form-check col-6 mb-2">
+                            <input class="form-check-input" type="checkbox" id="checkMartes" asp-for="AlumnoInput.AsistioMartes">
+                            <label class="form-check-label" for="checkMartes">Martes</label>
+                        </div>
+                        <div class="form-check col-6 mb-2">
+                            <input class="form-check-input" type="checkbox" id="checkMiercoles" asp-for="AlumnoInput.AsistioMiercoles">
+                            <label class="form-check-label" for="checkMiercoles">Miércoles</label>
+                        </div>
+                        <div class="form-check col-6 mb-2">
+                            <input class="form-check-input" type="checkbox" id="checkJueves" asp-for="AlumnoInput.AsistioJueves">
+                            <label class="form-check-label" for="checkJueves">Jueves</label>
+                        </div>
+                        <div class="form-check col-6 mb-2">
+                            <input class="form-check-input" type="checkbox" id="checkViernes" asp-for="AlumnoInput.AsistioViernes">
+                            <label class="form-check-label" for="checkViernes">Viernes</label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning text-dark fw-bold">Guardar Cambios</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold">Guardar Todo</button>
                 </div>
             </form>
         </div>
@@ -140,12 +171,33 @@
 </div>
 
 <script>
-    function cargarDatos(id, nombre, dni, celular, edad, fecha) {
+    function cargarDatos(id, nombre, dni, celular, edad, fecha, mar, mie, jue, vie) {
         document.getElementById('editId').value = id;
         document.getElementById('editNombre').value = nombre;
         document.getElementById('editDni').value = dni;
-        document.getElementById('editCellular').value = celular;
+        document.getElementById('editCelular').value = celular;
         document.getElementById('editEdad').value = edad;
         document.getElementById('editFecha').value = fecha;
+        
+        // Carga el estado de los checks (true o false)
+        document.getElementById('checkMartes').checked = (mar === 'true');
+        document.getElementById('checkMiercoles').checked = (mie === 'true');
+        document.getElementById('checkJueves').checked = (jue === 'true');
+        document.getElementById('checkViernes').checked = (vie === 'true');
+    }
+<script>
+    function cargarDatos(id, nombre, dni, celular, edad, fecha, mar, mie, jue, vie) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editNombre').value = nombre;
+        document.getElementById('editDni').value = dni;
+        document.getElementById('editCelular').value = celular; // 🛠️ CORREGIDO: Con una sola 'l'
+        document.getElementById('editEdad').value = edad;
+        document.getElementById('editFecha').value = fecha;
+        
+        // Carga el estado de los checks (true o false)
+        document.getElementById('checkMartes').checked = (mar === 'true');
+        document.getElementById('checkMiercoles').checked = (mie === 'true');
+        document.getElementById('checkJueves').checked = (jue === 'true');
+        document.getElementById('checkViernes').checked = (vie === 'true');
     }
 </script>

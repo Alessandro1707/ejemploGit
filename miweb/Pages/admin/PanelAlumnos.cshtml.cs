@@ -24,7 +24,6 @@ namespace miweb.Pages.admin
             ListaAlumnos = await _context.Alumnos.ToListAsync();
         }
 
-        // ❌ ACCIÓN: ELIMINAR ALUMNO
         public async Task<IActionResult> OnPostEliminarAsync(int id)
         {
             var alumno = await _context.Alumnos.FindAsync(id);
@@ -36,7 +35,6 @@ namespace miweb.Pages.admin
             return RedirectToPage();
         }
 
-        // ➕ ACCIÓN: AGREGAR NUEVO ALUMNO
         public async Task<IActionResult> OnPostAgregarAsync()
         {
             if (!ModelState.IsValid)
@@ -50,15 +48,9 @@ namespace miweb.Pages.admin
             return RedirectToPage();
         }
 
-        // 📝 ACCIÓN: EDITAR / ACTUALIZAR ALUMNO EXISTENTE
+        // 📝 SE MODIFICÓ: Ahora guarda la asistencia al editar
         public async Task<IActionResult> OnPostEditarAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                ListaAlumnos = await _context.Alumnos.ToListAsync();
-                return Page();
-            }
-
             var alumnoDb = await _context.Alumnos.FindAsync(AlumnoInput.Id);
             if (alumnoDb != null)
             {
@@ -66,7 +58,13 @@ namespace miweb.Pages.admin
                 alumnoDb.Dni = AlumnoInput.Dni;
                 alumnoDb.Celular = AlumnoInput.Celular;
                 alumnoDb.Edad = AlumnoInput.Edad;
-                alumnoDb.FechaPago = AlumnoInput.FechaPago; // Actualiza la fecha de pago
+                alumnoDb.FechaPago = AlumnoInput.FechaPago;
+                
+                // Guarda si el check está marcado o no
+                alumnoDb.AsistioMartes = AlumnoInput.AsistioMartes;
+                alumnoDb.AsistioMiercoles = AlumnoInput.AsistioMiercoles;
+                alumnoDb.AsistioJueves = AlumnoInput.AsistioJueves;
+                alumnoDb.AsistioViernes = AlumnoInput.AsistioViernes;
 
                 await _context.SaveChangesAsync();
             }
@@ -74,7 +72,6 @@ namespace miweb.Pages.admin
             return RedirectToPage();
         }
 
-        // 💡 FUNCIÓN UTILITARIA: Calcula el próximo mes basándose en "DD-MM"
         public string CalcularProximoPago(string fechaActual)
         {
             if (string.IsNullOrEmpty(fechaActual) || !fechaActual.Contains("-"))
@@ -86,16 +83,14 @@ namespace miweb.Pages.admin
                 int dia = int.Parse(partes[0]);
                 int mes = int.Parse(partes[1]);
 
-                // Sumamos un mes
                 mes++;
                 if (mes > 12) { mes = 1; }
 
-                // Retorna el formato limpio con ceros a la izquierda si es necesario
                 return $"{dia:D2}-{mes:D2}";
             }
             catch
             {
-                return "Formato inválido (usar DD-MM)";
+                return "Formato inválido";
             }
         }
     }
