@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("miweb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+96e22a41dc1f0bdfb4c01ee5fcc5f252ef6b9ce0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42fc819b5b0016946aee00c3a6957e2d81449886")]
 [assembly: System.Reflection.AssemblyProductAttribute("miweb")]
 [assembly: System.Reflection.AssemblyTitleAttribute("miweb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

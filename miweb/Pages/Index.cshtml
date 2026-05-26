@@ -12,26 +12,26 @@
                 <h3 class="text-success mb-3">✍️ ¿Eres Nuevo? ¡Inscríbete!</h3>
                 <p class="text-muted">Ingresa tus datos oficiales para separar tu cupo.</p>
                 
-                <form method="post" asp-page-handler="Registrar">
+                <form id="formInscripcion" method="post" asp-page-handler="Registrar" onsubmit="enviarAWhatsApp(event)">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary" for="NombreCompleto">Nombre Completo:</label>
-                        <input type="text" id="NombreCompleto" name="NombreCompleto" class="form-control" placeholder="Ej. Juan Carlos" required />
+                        <label class="form-label fw-bold text-secondary">Nombre Completo:</label>
+                        <input type="text" id="insNombre" name="NombreCompleto" class="form-control" placeholder="Ej. Juan Carlos" required />
                     </div>
                     
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <label class="form-label fw-bold text-secondary" for="Dni">DNI:</label>
-                            <input type="text" id="Dni" name="Dni" class="form-control" placeholder="8 dígitos" maxlength="8" required />
+                            <label class="form-label fw-bold text-secondary">DNI:</label>
+                            <input type="text" id="insDni" name="Dni" class="form-control" placeholder="8 dígitos" maxlength="8" required />
                         </div>
                         <div class="col-6 mb-3">
-                            <label class="form-label fw-bold text-secondary" for="Celular">Celular:</label>
-                            <input type="text" id="Celular" name="Celular" class="form-control" placeholder="Ej. 999333222" maxlength="9" required />
+                            <label class="form-label fw-bold text-secondary">Celular:</label>
+                            <input type="text" id="insCelular" name="Celular" class="form-control" placeholder="Ej. 999333222" maxlength="9" required />
                         </div>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary" for="Edad">Edad:</label>
-                        <input type="number" id="Edad" name="Edad" class="form-control" value="0" min="5" max="40" required />
+                        <label class="form-label fw-bold text-secondary">Edad:</label>
+                        <input type="number" id="insEdad" name="Edad" class="form-control" value="0" min="5" max="40" required />
                     </div>
                     
                     <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded mb-4">
@@ -66,3 +66,31 @@
 
     </div>
 </div>
+
+<script>
+    function enviarAWhatsApp(event) {
+        // 1. Capturamos lo que escribió el alumno en las cajitas
+        var nombre = document.getElementById('insNombre').value;
+        var dni = document.getElementById('insDni').value;
+        var celular = document.getElementById('insCelular').value;
+        var edad = document.getElementById('insEdad').value;
+
+        // 2. REEMPLAZA ESTO: Pon el número de WhatsApp de la academia (con el 51 de Perú adelante)
+        var telefonoAcademia = "51900000000"; 
+
+        // 3. Armamos la plantilla del mensaje
+        var mensaje = "⚽ *¡NUEVA INSCRIPCIÓN - ACADEMIA PJ!* ⚽\n\n" +
+                      "Hola, quiero confirmar mi registro con los siguientes datos:\n\n" +
+                      "👤 *Nombre:* " + nombre + "\n" +
+                      "🪪 *DNI:* " + dni + "\n" +
+                      "📱 *Celular:* " + celular + "\n" +
+                      "🎂 *Edad:* " + edad + " años\n\n" +
+                      "💰 *Monto a pagar:* S/ 109.00";
+
+        // 4. Lo convertimos a formato de enlace web
+        var urlWhatsApp = "https://wa.me/" + telefonoAcademia + "?text=" + encodeURIComponent(mensaje);
+
+        // 5. Abre el chat de WhatsApp en una pestaña nueva al instante
+        window.open(urlWhatsApp, '_blank');
+    }
+</script>
